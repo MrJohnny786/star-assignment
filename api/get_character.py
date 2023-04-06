@@ -6,6 +6,7 @@ __version__ = '1.0.0'
 
 
 from requests import Session
+import sys
 
 
 class Connector(object):
@@ -20,6 +21,64 @@ class Connector(object):
         response = self.session.get(self.url, params=self.params)
         if response.status_code == 200 or response.status_code == 304:
             self.characters = response.json().get('results')
+
+            return True
+        else:
+            return False
+
+
+class classHomeworld(object):
+
+    def __init__(self, session, url, params):
+        self.session = session
+        self.url = url
+        self.homeworld = None
+        self.params = params
+        self.earth_orbital_period = 365.25
+        self.earth_rotation_period = 24
+
+    def connect(self):
+        pass
+
+
+class SearchCharacter(object):
+    def __init__(self, session, url, params, worldFlag):
+        self.session = session
+        self.worldFlag = worldFlag
+        self.url = url
+        self.data = None
+        self.character = {
+            'name': None,
+            'height': None,
+            'mass': None,
+            'birth_year': None,
+            'world': None,
+            'population': None,
+            'correlation': None,
+        }
+        self.params = params
+
+    def parseData(self, data, worldFlag):
+        if (worldFlag):
+            data = data.json().get('result')[0].get('properties')
+            self.character['name'] = data.get('name')
+            self.character['height'] = data.get('height')
+            self.character['mass'] = data.get('mass')
+            self.character['birth_year'] = data.get('birth_year')
+
+    def connect(self):
+        response = self.session.get(self.url, params=self.params)
+        if response.status_code == 200 or response.status_code == 304:
+            self.data = response.json().get('result')
+            if not self.data:
+                return True
+            if self.data.len() > 0:
+                self.data = self.parseData(self.data, self.worldFlag)
+            # self.data = response.json().get('result')[0].get('properties')
+            # self.character['name'] = self.data.get('name')
+            # self.character['height'] = self.data.get('height')
+            # self.character['mass'] = self.data.get('mass')
+            # self.character['birth_year'] = self.data.get('birth_year')
             return True
         else:
             return False
@@ -27,8 +86,9 @@ class Connector(object):
 
 class Character(object):
 
-    def __init__(self, name):
+    def __init__(self, name, world):
         self.name = name
+        self.world = world
         self.session = Session()
         self.base_url = 'https://www.swapi.tech/api/people'
         self.session.headers = {
@@ -54,21 +114,42 @@ class Character(object):
             x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0\
             .0.0 Safari/537.36',
         }
-        self.params = {
+        self.find_all_params = {
             'page': '1',
             'limit': '100',
         }
 
+        self.params = {
+            'name': self.name,
+        }
+
         self.characters = None
+        self.character = None
 
     def main(self):
-        connector = Connector(self.session, self.base_url, self.params)
+        connector = Connector(self.session, self.base_url,
+                              self.find_all_params)
         if not connector.connect():
             raise Exception('Cannot connect to the API')
         self.characters = getattr(connector, 'characters')
         if not self.characters:
             raise Exception('No characters found')
-        print(self.characters)
+        # print(self.characters)
+
+        connector = SearchCharacter(self.session, self.base_url,
+                                    self.params, self.world)
+        if not connector.connect():
+            raise Exception('Cannot connect to the API')
+        self.character = getattr(connector, 'character')
+        self.character_data = getattr(connector, 'data')
+        if not self.character_data:
+            print('The force is not strong within you')
+            sys.exit()
+        if self.character_data:
+            print("Name: ", self.character['name'])
+            print("Height: ", self.character['height'])
+            print("Mass: ", self.character['mass'])
+            print("Birth Year: ", self.character['birth_year'])
 
 # if __name__ == '__main__':
 #     character = Character(self, name)

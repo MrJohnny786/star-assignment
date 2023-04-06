@@ -24,3 +24,7 @@ conda install -c anaconda requests
 
 # 👇️ for Jupyter Notebook
 !pip install requests
+
+
+# How to run manage-tasks
+    - python manage-tasks.py --search 'Luke'
