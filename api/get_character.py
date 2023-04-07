@@ -318,6 +318,13 @@ class Character(object):
                 exit()
 
     def main(self):
+        folder_name = "cache"
+
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+            # print(f"Folder '{folder_name}' created.")
+        else:
+            pass
         if self.virtualize:
             virtual = Virtualise()
             if not virtual.main():
