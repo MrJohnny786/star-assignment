@@ -1,30 +1,23 @@
 # star-assignment
 Repo for an assignment
 
-# 👇️ in a virtual environment or using Python 2
-pip install requests
 
-# 👇️ for python 3 (could also be pip3.10 depending on your version)
-pip3 install requests
+# Install requirements.txt (For some reason i had some issues not finding the dependency so i had to use the command below)
+    pip install -r requirements.txt 
 
-# 👇️ if you get permissions error
-pip install requests --user
 
-# 👇️ if you don't have pip in your PATH environment variable
-python -m pip install requests
+# 👇️ Install dependency
+    python -m pip install requests
 
-# 👇️ for python 3 (could also be pip3.10 depending on your version)
-python3 -m pip install requests
-
-# 👇️ using py alias (Windows)
-py -m pip install requests
-
-# 👇️ for Anaconda
-conda install -c anaconda requests
-
-# 👇️ for Jupyter Notebook
-!pip install requests
 
 
 # How to run manage-tasks
-    - python manage-tasks.py --search 'Luke'
+    - python main.py --search 'Luke'
+    - python main.py --search 'Vader' --world
+    - python main.py --virtualize
+    - python main.py --clean
+
+Regarding the visualization, i created a linear request/time graph where if the request
+is successful(find the character) it gets green , otherwise it gets red.
+
+

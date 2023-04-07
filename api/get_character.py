@@ -359,7 +359,7 @@ class Character(object):
             print("Population: ", self.character['population'])
             print('                                  ')
             print('On', self.character['world'], '1 year on earth is', self.character.get('correlation')
-                  .get('year'), 'years and 1 day ', self.character.get('correlation').get('day'), 'days')
+                  .get('year'), 'years and 1 day', self.character.get('correlation').get('day'), 'days')
             print('                                  ')
             if self.character.get('cached'):
                 print('cached: ', self.character['cached'])
