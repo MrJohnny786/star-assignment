@@ -11,7 +11,38 @@ import json
 from datetime import datetime
 import os
 import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
+
+
+class Virtualise(object):
+    def __init__(self):
+        self.file_path = 'cache/advancedData.json'
+
+    def main(self):
+        if not os.path.isfile(self.file_path):
+            return False
+        with open(self.file_path, 'r') as f:
+            data = json.load(f)
+
+        x = []
+        y = []
+        z = []
+        for _data in data['requests']:
+            x.append(_data['search'])
+            y.append(_data['time'])
+
+            z.append(_data['result'])
+
+        colors = ['red' if i == 'Unsuccessful' else 'green' for i in z]
+        plt.scatter(x, y, c=colors)
+
+        plt.title("Star wars search names/time graph")
+        plt.ylabel('Time-Axis')
+
+        plt.xlabel('Search name-Axis')
+
+        plt.show()
+
+        return True
 
 
 class CacheHandler(object):
@@ -36,13 +67,12 @@ class CacheHandler(object):
             return
 
     def update_json(self, data):
-        print('data')
         if os.path.isfile(self.file_path):
             with open(self.file_path, 'r') as f:
                 cached_data = json.load(f)
             cached_data['requests'].append(data)
             cached_data['total_data']['total_requests'] += 1
-            if data['result'] == 'succesful':
+            if data['result'] == 'Successful':
                 cached_data['total_data']['total_succesful'] += 1
             else:
                 cached_data['total_data']['total_unsuccesful'] += 1
@@ -66,11 +96,7 @@ class Connector(object):
             with open('cache/'+json_cache, 'r') as f:
                 self.characters = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError) as e:
-            print('no local cache found', e)
-            self.characters = {
-                'data': None,
-                'cached': None,
-            }
+            return
 
     def connect(self):
         self.fetch_data('characters.json')
@@ -169,7 +195,8 @@ class SearchCharacter(object):
             with open('cache/'+json_cache, 'r') as f:
                 self.character = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError) as e:
-            print('no local cache found', e)
+            return
+            # print('no local cache found', e)
 
     def parseData(self, data, worldFlag):
         data = data[0].get('properties')
@@ -236,13 +263,12 @@ class SearchCharacter(object):
 
 class Character(object):
 
-    def __init__(self, name=None, world=False, cache=False):
+    def __init__(self, name=None, world=False, cache=False, virtualize=False):
         self.name = name
         self.world = world
         self.cache = cache
+        self.virtualize = virtualize
         self.session = Session()
-        # self.session.mount(
-        #     'http://', requests_cache.CachedSession('demo_cache', expire_after=requests_cache.timedelta(hours=1)))
 
         self.base_url = 'https://www.swapi.tech/api/people'
         self.session.headers = {
@@ -287,18 +313,23 @@ class Character(object):
             try:
                 if os.path.isfile(file_path):
                     os.unlink(file_path)
-                    print(f"{file_path} deleted successfully")
             except Exception as e:
                 print(f"Error deleting {file_path}: {e}")
                 exit()
 
     def main(self):
+        if self.virtualize:
+            virtual = Virtualise()
+            if not virtual.main():
+                print('No data exist to virtualize')
+                exit()
+            exit()
         if self.cache:
             self.remove_cache()
+            print('Removed cache')
             exit()
         cacheHandler = CacheHandler()
         cacheHandler.initialize_cache_data()
-        # exit()
         connector = Connector(self.session, self.base_url,
                               self.find_all_params)
         if not connector.connect():
@@ -317,26 +348,26 @@ class Character(object):
             print('The force is not strong within you')
             sys.exit()
         if self.character_data and self.character_data.get('world_flag'):
-            print("Name: ", self.character['name'])
-            print("Height: ", self.character['height'])
-            print("Mass: ", self.character['mass'])
-            print("Birth Year: ", self.character['birth_year'])
+            print("Name: ", self.character.get('name'))
+            print("Height: ", self.character.get('height'))
+            print("Mass: ", self.character.get('mass'))
+            print("Birth Year: ", self.character.get('birth_year'))
             print('                                  ')
             print("Homeworld")
             print("----------------------------------")
-            print("Name: ", self.character['world'])
+            print("Name: ", self.character.get('world'))
             print("Population: ", self.character['population'])
             print('                                  ')
-            print('On', self.character['world'], '1 year on earth is', self.character['correlation']
-                  ['year'], 'years and 1 day ', self.character['correlation']['day'], 'days')
+            print('On', self.character['world'], '1 year on earth is', self.character.get('correlation')
+                  .get('year'), 'years and 1 day ', self.character.get('correlation').get('day'), 'days')
             print('                                  ')
             if self.character.get('cached'):
                 print('cached: ', self.character['cached'])
         else:
-            print("Name: ", self.character['name'])
-            print("Height: ", self.character['height'])
-            print("Mass: ", self.character['mass'])
-            print("Birth Year: ", self.character['birth_year'])
+            print("Name: ", self.character.get('name'))
+            print("Height: ", self.character.get('height'))
+            print("Mass: ", self.character.get('mass'))
+            print("Birth Year: ", self.character.get('birth_year'))
             print('                                  ')
-            if self.characterget('cached'):
+            if self.character.get('cached'):
                 print('cached: ', self.character['cached'])

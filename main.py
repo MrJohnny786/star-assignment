@@ -17,8 +17,11 @@ if __name__ == "__main__":
     parser.add_argument('--clean', action='store_true',
                         help='Clean cache')
 
+    parser.add_argument('--virtualize', action='store_true',
+                        help='Virtualize data')
+
     # Parse the command-line arguments and execute the selected task
     args = parser.parse_args()
     task1 = api.get_character.Character(
-        args.search, args.world, args.clean).main()
+        args.search, args.world, args.clean, args.virtualize).main()
     # args.func()
